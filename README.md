@@ -1,0 +1,1 @@
+# hake_survey_batch

@@ -43,6 +43,7 @@ from topomaps import add_etopo2
 import cartopy.crs as ccrs
 import cartopy
 import cartopy.feature as cfeature
+from cartopy.mpl.gridliner import LATITUDE_FORMATTER, LONGITUDE_FORMATTER
 import gc
 
 def main():
@@ -59,48 +60,69 @@ def main():
       else:
          nc = ModelEK60(nc_file)
          nc.calibrate(save=True)
- 
-   Sv_files = sorted(glob(os.path.join(path_to_files, '*' + files_date + '*Sv.nc')))
-   print("Plotting echograms...")
-   for i in range(0, len(Sv_files), 10):
-      Sv_chunk = Sv_files[i:i+10]
-      lastfile = os.path.basename(Sv_chunk[-1]).split('-')[2].split('_')[0]
-      pngname = os.path.join(basedir, 'echogram', os.path.basename(Sv_chunk[0]).split('_')[0] + '-' + lastfile + '-echo.png')
-      Sv = xr.open_mfdataset(Sv_files[i:i+10], combine='by_coords')
-      plt.figure(figsize=[11, 8.5])
-      plt.subplot(3, 1, 1)
-      Sv.Sv.sel(frequency=18000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
-      plt.gca().invert_yaxis()
-      plt.title(files_date + '  (frequency=18000)')
-      plt.subplot(3, 1, 2)
-      Sv.Sv.sel(frequency=38000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
-      plt.gca().invert_yaxis()
-      plt.title(files_date + '  (frequency=38000)')
-      plt.subplot(3, 1, 3)
-      Sv.Sv.sel(frequency=120000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
-      plt.gca().invert_yaxis()
-      plt.title(files_date + '  (frequency=120000)')
-      plt.tight_layout() 
-      plt.savefig(pngname, dpi=120)
-      plt.clf()
-      plt.close()
-      gc.collect()
+# 
+#   Sv_files = sorted(glob(os.path.join(path_to_files, '*' + files_date + '*Sv.nc')))
+#   print("Plotting echograms...")
+#   for i in range(0, len(Sv_files), 10):
+#      Sv_chunk = Sv_files[i:i+10]
+#      lastfile = os.path.basename(Sv_chunk[-1]).split('-')[2].split('_')[0]
+#      pngname = os.path.join(basedir, 'echogram', os.path.basename(Sv_chunk[0]).split('_')[0] + '-' + lastfile + '-echo.png')
+#      Sv = xr.open_mfdataset(Sv_files[i:i+10], combine='by_coords')
+#      plt.figure(figsize=[11, 8.5])
+#      plt.subplot(3, 1, 1)
+#      Sv.Sv.sel(frequency=18000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
+#      plt.gca().invert_yaxis()
+#      plt.title(files_date + '  (frequency=18000)')
+#      plt.subplot(3, 1, 2)
+#      Sv.Sv.sel(frequency=38000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
+#      plt.gca().invert_yaxis()
+#      plt.title(files_date + '  (frequency=38000)')
+#      plt.subplot(3, 1, 3)
+#      Sv.Sv.sel(frequency=120000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
+#      plt.gca().invert_yaxis()
+#      plt.title(files_date + '  (frequency=120000)')
+#     plt.tight_layout() 
+#      plt.savefig(pngname, dpi=120)
+#      plt.clf()
+#      plt.close()
+#      gc.collect()
  
 
    ##### Ship tracks
-   print("Plotting ship tracks...")
+   print("Plotting ship tracks for " + files_date)
    for i in range(0, len(nc_files), 10):
       nc_plat = xr.open_mfdataset(nc_files, group='Platform', concat_dim='location_time')
       dx = dy = 0.25
-      extent = (nc_plat.longitude.values.min() - dx, nc_plat.longitude.values.max() + dx, nc_plat.latitude.values.min() - dy, nc_plat.latitude.values.max() + dy)
-      ### constrain extent to West Coast in case lat/long values are missing, improperly set, or otherwise suspect
-
+      extent = [nc_plat.longitude.values.min() - dx, nc_plat.longitude.values.max() + dx, nc_plat.latitude.values.min() - dy, nc_plat.latitude.values.max() + dy]
       nc_plat.close() 
+      ### constrain extent to West Coast lat/lons in case lat/long values are missing, improperly set, or otherwise suspect
+      if extent[0] <= -135:
+         extent[0] = -135    
+
+      if extent[1] >= -117:
+         extent[1] = -117   
+
+      if extent[2] <= 32:
+         extent[2] = 32    
+
+      if extent[3] >= 49:
+         extent[3] = 49 
+
+      # City locations
+      SanDiego = [32.7157, -117.1611]
+      SanMiguelIsland = [34.0376, -120.3724]
+      SanFrancisco = [37.7749, -122.4194]
+      CapeMendocino = [40.4401, -124.4095]
+      CapeBlanco = [42.8376, -124.5640]
+      YaquinaHead = [44.6737, -124.0774]
+      Astoria = [46.1879, -123.8313]
+      NeahBay = [48.3681, -124.6250]
+      
       plt.figure(figsize=[8.5, 11], tight_layout=True)
 
       ### Use PlateCarree projection (see https://scitools.org.uk/cartopy/docs/latest/crs/projections.html for details)
       ax = plt.axes(projection=ccrs.PlateCarree())
-      ax.set_extent(extent)
+      ax.set_extent(extent, crs=ccrs.PlateCarree())
       ax.coastlines(resolution='50m')
       #ax.add_feature(cartopy.feature.OCEAN)
       add_etopo2(extent, ax)
@@ -109,7 +131,9 @@ def main():
       gl.xlabels_top = False
       gl.ylabels_right= False
       gl.xlabel_style = {'rotation': 45}
-
+      gl.xformatter = LONGITUDE_FORMATTER
+      gl.yformatter = LATITUDE_FORMATTER
+ 
       color_list = [
          "#A6CEE3",
          "#1F78B4",
@@ -129,6 +153,30 @@ def main():
          ncs = xr.open_dataset(ncs_chunk[i], group='Platform')
          ax.plot(ncs.longitude.values, ncs.latitude.values, linewidth=3, color=color_list[i])
          leglist.append(os.path.basename(ncs_chunk[i]))
+
+      if (extent[2] <= SanDiego[0] <= extent[3]) and (extent[0] <= SanDiego[1] <= extent[1]):
+         tt_SanDiego = ax.text(x=SanDiego[1], y=SanDiego[0], s='San Diego', fontsize=18)
+
+      if (extent[2] <= SanMiguelIsland[0] <= extent[3]) and (extent[0] <= SanMiguelIsland[1] <= extent[1]):
+         tt_SanMiguelIsland = ax.text(x=SanMiguelIsland[1], y=SanMiguelIsland[0], s='San Miguel Island', fontsize=18)
+
+      if (extent[2] <= SanFrancisco[0] <= extent[3]) and (extent[0] <= SanFrancisco[1] <= extent[1]):
+         tt_SanFrancisco = ax.text(x=SanFrancisco[1], y=SanFrancisco[0], s='San Francisco', fontsize=18)
+
+      if (extent[2] <= CapeMendocino[0] <= extent[3]) and (extent[0] <= CapeMendocino[1] <= extent[1]):
+         tt_CapeMendocino = ax.text(x=CapeMendocino[1], y=CapeMendocino[0], s='Cape Mendocino', fontsize=18)
+
+      if (extent[2] <= CapeBlanco[0] <= extent[3]) and (extent[0] <= CapeBlanco[1] <= extent[1]):
+         tt_CapeBlanco = ax.text(x=CapeBlanco[1], y=CapeBlanco[0], s='Cape Blanco', fontsize=18)
+
+      if (extent[2] <= YaquinaHead[0] <= extent[3]) and (extent[0] <= YaquinaHead[1] <= extent[1]):
+         tt_YaquinaHead = ax.text(x=YaquinaHead[1], y=YaquinaHead[0], s='Yaquina Head', fontsize=18)
+
+      if (extent[2] <= Astoria[0] <= extent[3]) and (extent[0] <= Astoria[1] <= extent[1]):
+         tt_Astoria = ax.text(x=Astoria[1], y=Astoria[0], s='Columbia River', fontsize=18)
+
+      if (extent[2] <= NeahBay[0] <= extent[3]) and (extent[0] <= NeahBay[1] <= extent[1]):
+          tt_NeahBay = ax.text(x=NeahBay[1], y=NeahBay[0], s='Neah Bay', fontsize=18)
       
       ax.legend(leglist, bbox_to_anchor=(.22, -.2), loc='upper left')
       lastfile = os.path.basename(ncs_chunk[-1]).split('-')[2].split('.')[0]

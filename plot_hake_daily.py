@@ -3,7 +3,7 @@
 """
 Command line tool for generating "daily" plots of Hake survey data.
 
-NOTE: THIS SCRIPT ASSUMES THE FOLLOWING SUBDIRECTORIES:
+NOTE: THIS SCRIPT ASSUMES THE FOLLOWING SUBDIRECTORIES (see raw2netCDF.py):
    .../shimada/[cruise]/ek60_raw/
                        /ek60_nc/
                        /echogram/
@@ -11,9 +11,20 @@ NOTE: THIS SCRIPT ASSUMES THE FOLLOWING SUBDIRECTORIES:
                        /ship_track_10day/
 
 example usage: python plot_hake_daily.py [/path/to/data/basedir] D[YearMonthDay] 
-example usage: python plot_hake_daily.py /media/paulr/Elements/ncei_data/shimada/sh1701/ D20170720
+example usage: python plot_hake_daily.py /media/paulr/ncei_data/shimada/sh1701/ D20170720
 
-This script will determine if there are more than 10 files for a day and create a plot per 10, or all if fewer.
+To generate a list of unique days in BASH:
+   $ cd /media/paulr/ncei_data/shimada/sh1701/ek60_nc/
+   $ days=(`ls | awk -F"-" '{print $2}' | uniq`)
+   $ cd ~/Programming/echopype
+
+Then just wrap this in a loop:
+   $ for day in ${days[*]}; do
+   $   python plot_hake_daily.py /media/paulr/ncei_data/shimada/sh1701/ ${day}   
+   $ done
+
+
+This script will automagically determine if there are more than 10 files for a day and create a plot per 10 files, or all if fewer.
                
 """
 
@@ -54,7 +65,7 @@ def main():
    for i in range(0, len(Sv_files), 10):
       Sv_chunk = Sv_files[i:i+10]
       lastfile = os.path.basename(Sv_chunk[-1]).split('-')[2].split('_')[0]
-      pngname = os.path.join(basedir, 'echogram', os.path.basename(Sv_files[i]).split('_')[0] + '-' + lastfile + '-echo.png')
+      pngname = os.path.join(basedir, 'echogram', os.path.basename(Sv_chunk[0]).split('_')[0] + '-' + lastfile + '-echo.png')
       Sv = xr.open_mfdataset(Sv_files[i:i+10], combine='by_coords')
       plt.figure(figsize=[11, 8.5])
       plt.subplot(3, 1, 1)
@@ -82,8 +93,12 @@ def main():
       nc_plat = xr.open_mfdataset(nc_files, group='Platform', concat_dim='location_time')
       dx = dy = 0.25
       extent = (nc_plat.longitude.values.min() - dx, nc_plat.longitude.values.max() + dx, nc_plat.latitude.values.min() - dy, nc_plat.latitude.values.max() + dy)
+      ### constrain extent to West Coast in case lat/long values are missing, improperly set, or otherwise suspect
+
       nc_plat.close() 
-      plt.figure(figsize=[8.5, 11])
+      plt.figure(figsize=[8.5, 11], tight_layout=True)
+
+      ### Use PlateCarree projection (see https://scitools.org.uk/cartopy/docs/latest/crs/projections.html for details)
       ax = plt.axes(projection=ccrs.PlateCarree())
       ax.set_extent(extent)
       ax.coastlines(resolution='50m')
@@ -117,7 +132,9 @@ def main():
       
       ax.legend(leglist, bbox_to_anchor=(.22, -.2), loc='upper left')
       lastfile = os.path.basename(ncs_chunk[-1]).split('-')[2].split('.')[0]
-      pngname = os.path.join(basedir, 'ship_track_01day', os.path.basename(nc_files[i]).split('.')[0] + '-' + lastfile + '-shiptrack.png')
+      pngname = os.path.join(basedir, 'ship_track_01day', os.path.basename(ncs_chunk[i]).split('.')[0] + '-' + lastfile + '_shiptrack.png')
+      plt.title(os.path.basename(pngname))
+      plt.tight_layout()
       plt.savefig(pngname, dpi=120)
       plt.clf() 
       plt.close()

@@ -60,32 +60,32 @@ def main():
       else:
          nc = ModelEK60(nc_file)
          nc.calibrate(save=True)
-# 
-#   Sv_files = sorted(glob(os.path.join(path_to_files, '*' + files_date + '*Sv.nc')))
-#   print("Plotting echograms...")
-#   for i in range(0, len(Sv_files), 10):
-#      Sv_chunk = Sv_files[i:i+10]
-#      lastfile = os.path.basename(Sv_chunk[-1]).split('-')[2].split('_')[0]
-#      pngname = os.path.join(basedir, 'echogram', os.path.basename(Sv_chunk[0]).split('_')[0] + '-' + lastfile + '-echo.png')
-#      Sv = xr.open_mfdataset(Sv_files[i:i+10], combine='by_coords')
-#      plt.figure(figsize=[11, 8.5])
-#      plt.subplot(3, 1, 1)
-#      Sv.Sv.sel(frequency=18000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
-#      plt.gca().invert_yaxis()
-#      plt.title(files_date + '  (frequency=18000)')
-#      plt.subplot(3, 1, 2)
-#      Sv.Sv.sel(frequency=38000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
-#      plt.gca().invert_yaxis()
-#      plt.title(files_date + '  (frequency=38000)')
-#      plt.subplot(3, 1, 3)
-#      Sv.Sv.sel(frequency=120000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
-#      plt.gca().invert_yaxis()
-#      plt.title(files_date + '  (frequency=120000)')
-#     plt.tight_layout() 
-#      plt.savefig(pngname, dpi=120)
-#      plt.clf()
-#      plt.close()
-#      gc.collect()
+ 
+   Sv_files = sorted(glob(os.path.join(path_to_files, '*' + files_date + '*Sv.nc')))
+   print("Plotting echograms...")
+   for i in range(0, len(Sv_files), 10):
+      Sv_chunk = Sv_files[i:i+10]
+      lastfile = os.path.basename(Sv_chunk[-1]).split('-')[2].split('_')[0]
+      pngname = os.path.join(basedir, 'echogram', os.path.basename(Sv_chunk[0]).split('_')[0] + '-' + lastfile + '-echo.png')
+      Sv = xr.open_mfdataset(Sv_files[i:i+10], combine='by_coords')
+      plt.figure(figsize=[11, 8.5])
+      plt.subplot(3, 1, 1)
+      Sv.Sv.sel(frequency=18000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
+      plt.gca().invert_yaxis()
+      plt.title(files_date + '  (frequency=18000)')
+      plt.subplot(3, 1, 2)
+      Sv.Sv.sel(frequency=38000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
+      plt.gca().invert_yaxis()
+      plt.title(files_date + '  (frequency=38000)')
+      plt.subplot(3, 1, 3)
+      Sv.Sv.sel(frequency=120000).plot(vmax=-40, vmin=-100, cmap='Spectral_r', x='ping_time')
+      plt.gca().invert_yaxis()
+      plt.title(files_date + '  (frequency=120000)')
+      plt.tight_layout() 
+      plt.savefig(pngname, dpi=120)
+      plt.clf()
+      plt.close()
+      gc.collect()
  
 
    ##### Ship tracks

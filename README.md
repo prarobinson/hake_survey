@@ -25,3 +25,5 @@ The result of running the above will be a collection of new folders:
 - ship\_track\_01day/ -- these plots show the ship's track for a day, also broken down into 10-file segments. 
 - ship\_track\_10day/ -- and these are the entire cruise, broken into 10-_day_ chunks
 
+Thanks to [Filipe](https://github.com/ocefpaf) for [topomaps.py](https://github.com/oceanhackweek/ohw19-tutorial-data-access-viz/tree/master/cartopy_extras), which provides some nice functionality to the ship track scripts.
+

@@ -5,17 +5,17 @@
 Typical workflow
 ---------------------------------
 
-These scripts only assume you have some .raw files in a folder called ***ek60_raw*** just below the main cruise directory. Then, the following steps convert the .raw files to netCDF, generate a .csv file with one row per file, and create echograms and ship tracks:
+These scripts only assume you have some .raw files in a folder called ***ek60_raw*** just below the main cruise directory. Then, the following steps convert the .raw files to netCDF, generate a .csv file with one row of info per file, and create echograms and ship tracks:
 
 1. raw2netCDF.py --  `python raw2netCDF.py /media/paul/ncei_data/shimada/ sh1707`
 2. survey_hake.py --  `python survey_hake.py /media/paulr/ncei_data/shimada/ sh1707`
-3. plot\_hake\_daily.py -- this just plots a single day, so you may wish to run it in a loop:
+3. plot\_hake\_daily.py -- this just plots a single day, so you may wish to run it in a loop (see the docstring for how to get a unique list of days):
     ```
     for day in ${days[*]}; do
       python plot_hake_daily.py /media/paulr/ncei_data/shimada/sh1701/ ${day}
     done
     ```
-4. plot\_hake\_10days.py -- this will do ten days per plot, but goes over the entire cruise `python plot_hake_10days.py /media/paulr/ncei_data/shimada/sh1701/`
+4. plot\_hake\_10days.py -- this will do ten days per plot, but goes over the entire cruise: `python plot_hake_10days.py /media/paulr/ncei_data/shimada/sh1701/`
 
 
 The result of running the above will be a collection of new folders:

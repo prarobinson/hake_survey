@@ -11,7 +11,7 @@ These scripts only assume you have some .raw files in a folder called ***ek60_ra
 2. survey_hake.py --  `python survey_hake.py /media/paulr/ncei_data/shimada/ sh1707`
 3. plot\_hake\_daily.py -- this just plots a single day, so you may wish to run it in a loop:
     ```
-     for day in ${days[*]}; do
+    for day in ${days[*]}; do
       python plot_hake_daily.py /media/paulr/ncei_data/shimada/sh1701/ ${day}
     done
     ```

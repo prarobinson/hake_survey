@@ -15,7 +15,7 @@ example usage: python plot_hake_daily.py /media/paulr/ncei_data/shimada/sh1701/ 
 
 To generate a list of unique days in BASH:
    $ cd /media/paulr/ncei_data/shimada/sh1701/ek60_nc/
-   $ days=(`ls | awk -F"-" '{print $2}' | uniq`)
+   $ days=(`ls | awk -F"-" '{print $2}' | sort | uniq`)
    $ cd ~/Programming/echopype
 
 Then just wrap this in a loop:
@@ -102,11 +102,11 @@ def main():
       if extent[1] >= -117:
          extent[1] = -117   
 
-      if extent[2] <= 32:
-         extent[2] = 32    
+      if extent[2] <= 25:
+         extent[2] = 25   
 
-      if extent[3] >= 49:
-         extent[3] = 49 
+      if extent[3] >= 70:
+         extent[3] = 70 
 
       # City locations
       SanDiego = [32.7157, -117.1611]
@@ -155,35 +155,44 @@ def main():
          leglist.append(os.path.basename(ncs_chunk[i]))
 
       if (extent[2] <= SanDiego[0] <= extent[3]) and (extent[0] <= SanDiego[1] <= extent[1]):
-         tt_SanDiego = ax.text(x=SanDiego[1], y=SanDiego[0], s='San Diego', fontsize=18)
+         tt_SanDiego = ax.plot(SanDiego[1], SanDiego[0], marker='o', color='k')
+         tt_SanDiego = ax.text(x=SanDiego[1] + 0.03, y=SanDiego[0], s='San Diego', fontsize=18)
 
       if (extent[2] <= SanMiguelIsland[0] <= extent[3]) and (extent[0] <= SanMiguelIsland[1] <= extent[1]):
-         tt_SanMiguelIsland = ax.text(x=SanMiguelIsland[1], y=SanMiguelIsland[0], s='San Miguel Island', fontsize=18)
+         tt_SanMiguelIsland = ax.plot(SanMiguelIsland[1], SanMiguelIsland[0], marker='o', color='k')
+         tt_SanMiguelIsland = ax.text(x=SanMiguelIsland[1] + 0.03, y=SanMiguelIsland[0], s='San Miguel Island', fontsize=18)
 
       if (extent[2] <= SanFrancisco[0] <= extent[3]) and (extent[0] <= SanFrancisco[1] <= extent[1]):
-         tt_SanFrancisco = ax.text(x=SanFrancisco[1], y=SanFrancisco[0], s='San Francisco', fontsize=18)
+         tt_SanFrancisco = ax.plot(SanFrancisco[1], SanFrancisco[0], marker='o', color='k')
+         tt_SanFrancisco = ax.text(x=SanFrancisco[1] + 0.03, y=SanFrancisco[0], s='San Francisco', fontsize=18)
 
       if (extent[2] <= CapeMendocino[0] <= extent[3]) and (extent[0] <= CapeMendocino[1] <= extent[1]):
-         tt_CapeMendocino = ax.text(x=CapeMendocino[1], y=CapeMendocino[0], s='Cape Mendocino', fontsize=18)
+         tt_CapeMendocino = ax.plot(CapeMendocino[1], CapeMendocino[0], marker='o', color='k')
+         tt_CapeMendocino = ax.text(x=CapeMendocino[1] + 0.03, y=CapeMendocino[0], s='Cape Mendocino', fontsize=18)
 
       if (extent[2] <= CapeBlanco[0] <= extent[3]) and (extent[0] <= CapeBlanco[1] <= extent[1]):
-         tt_CapeBlanco = ax.text(x=CapeBlanco[1], y=CapeBlanco[0], s='Cape Blanco', fontsize=18)
+         tt_CapeBlanco = ax.plot(CapeBlanco[1], CapeBlanco[0], marker='o', color='k')
+         tt_CapeBlanco = ax.text(x=CapeBlanco[1] + 0.03, y=CapeBlanco[0], s='Cape Blanco', fontsize=18)
 
       if (extent[2] <= YaquinaHead[0] <= extent[3]) and (extent[0] <= YaquinaHead[1] <= extent[1]):
-         tt_YaquinaHead = ax.text(x=YaquinaHead[1], y=YaquinaHead[0], s='Yaquina Head', fontsize=18)
+         tt_YaquinaHead = ax.plot(YaquinaHead[1], YaquinaHead[0], marker='o', color='k')
+         tt_YaquinaHead = ax.text(x=YaquinaHead[1] + 0.03, y=YaquinaHead[0], s='Yaquina Head', fontsize=18)
 
       if (extent[2] <= Astoria[0] <= extent[3]) and (extent[0] <= Astoria[1] <= extent[1]):
-         tt_Astoria = ax.text(x=Astoria[1], y=Astoria[0], s='Columbia River', fontsize=18)
+         tt_Astoria = ax.plot(Astoria[1], Astoria[0], marker='o', color='k')
+         tt_Astoria = ax.text(x=Astoria[1] + 0.03, y=Astoria[0], s='Columbia River', fontsize=18)
 
       if (extent[2] <= NeahBay[0] <= extent[3]) and (extent[0] <= NeahBay[1] <= extent[1]):
-          tt_NeahBay = ax.text(x=NeahBay[1], y=NeahBay[0], s='Neah Bay', fontsize=18)
+          tt_NeahBay = ax.plot(NeahBay[1], NeahBay[0], marker='o', color='k')
+          tt_NeahBay = ax.text(x=NeahBay[1] + 0.03, y=NeahBay[0], s='Neah Bay', fontsize=18)
       
       ax.legend(leglist, bbox_to_anchor=(.22, -.2), loc='upper left')
       lastfile = os.path.basename(ncs_chunk[-1]).split('-')[2].split('.')[0]
       pngname = os.path.join(basedir, 'ship_track_01day', os.path.basename(ncs_chunk[i]).split('.')[0] + '-' + lastfile + '_shiptrack.png')
       plt.title(os.path.basename(pngname))
-      plt.tight_layout()
-      plt.savefig(pngname, dpi=120)
+      plt.tight_layout(pad=.25)
+      print("Saving " + pngname)
+      plt.savefig(pngname, dpi=120, bbox_inches='tight', pad_inches=.25)
       plt.clf() 
       plt.close()
       gc.collect()

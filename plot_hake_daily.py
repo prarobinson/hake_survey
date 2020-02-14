@@ -63,6 +63,7 @@ def main():
  
    Sv_files = sorted(glob(os.path.join(path_to_files, '*' + files_date + '*Sv.nc')))
    print("Plotting echograms...")
+
    ### plots will be concatenations of 10 files at most; each has 3 frequencies
    for i in range(0, len(Sv_files), 10):
       Sv_chunk = Sv_files[i:i+10]

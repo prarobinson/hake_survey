@@ -36,7 +36,7 @@ for i in range(0, len(allncs)):
 uniqueDates = sorted(set(alldates))
 
 
-dx = dy = 0.25
+dx = dy = 0.25 # Pad lat/lon extent by .25 degrees
 
 for i in range(0, len(uniqueDates), 10):
    ### just someplace from which to start
@@ -44,6 +44,7 @@ for i in range(0, len(uniqueDates), 10):
    tenDates = uniqueDates[i:i+10]
    print(tenDates)
    for date in tenDates:
+      ### iterate over all the files in this date range to get the global max and min extent 
       try:
          nc_files = [j for j in allncs if date in j]
          nc_plat = xr.open_mfdataset(nc_files, group='Platform', concat_dim='location_time')
@@ -127,7 +128,7 @@ for i in range(0, len(uniqueDates), 10):
       except Exception as e:
          print('An error occurred: ' + str(e))
      
-      
+   ### add locations of interest/landmarks if they are nearby      
    if (extent[2] <= SanDiego[0] <= extent[3]) and (extent[0] <= SanDiego[1] <= extent[1]):
       tt_SanDiego = ax.plot(SanDiego[1], SanDiego[0], marker='o', color='k')
       tt_SanDiego = ax.text(x=SanDiego[1] + 0.1, y=SanDiego[0], s='San Diego', fontsize=18)

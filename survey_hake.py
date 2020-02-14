@@ -28,7 +28,7 @@ def main():
    errsdir = os.path.join(basedir, cruisename, 'ek60_convert_error')
    plotsdir = os.path.join(basedir, cruisename, 'ping_interval')
 
-   ### Check if a data survey csv file exists in the folder already, and, if not, create one.
+   ### Check if a data survey .csv file exists in the folder already, and, if not, create one.
    csvfile = os.path.join(basedir, cruisename, cruisename + '_summary.csv')
    if os.path.exists(csvfile) == False:
       with open(csvfile, 'w', newline='') as csvfiletowrite:
@@ -58,7 +58,7 @@ def main():
             end_ping_time = ncfile_beam.ping_time.max().values
             ### calc and plot ping intervals. 
             pings = ncfile_beam.ping_time.values
-            ### First, let's just look at the intervals for anomalies
+            ### First, let's just look at the intervals for any anomalies
             ping_ints = np.diff(pings)
             plt.plot(ping_ints)
             plt.ylabel('Ping Intervals (s)')
